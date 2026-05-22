@@ -4367,6 +4367,15 @@ function syncPanelHeights() {
       state.years = {};
       state.active = null;
       state.activeYear = DEFAULT_YEAR;
+      // Réinitialiser le formulaire de login (sinon le bouton reste disabled après un login réussi précédent)
+      const loginForm = document.getElementById("loginForm");
+      if (loginForm) loginForm.reset();
+      const submitBtn = document.getElementById("loginSubmit");
+      if (submitBtn) submitBtn.disabled = false;
+      const errEl = document.getElementById("loginError");
+      if (errEl) errEl.hidden = true;
+      const infoEl = document.getElementById("loginInfo");
+      if (infoEl) infoEl.hidden = true;
     }
   });
 })();
@@ -4448,13 +4457,13 @@ function setupLoginUI() {
       } else if (mode === "forgot") {
         await auth.sendPasswordResetEmail(email);
         showInfo(`✓ Email envoyé à ${email}. Vérifie ta boîte mail.`);
-        submitBtn.disabled = false;
         return;
       }
       form.reset();
-      // Le onAuthStateChanged va prendre le relais et basculer vers l'app
+      // onAuthStateChanged va prendre le relais et basculer vers l'app
     } catch (err) {
       showError(translateAuthError(err));
+    } finally {
       submitBtn.disabled = false;
     }
   });
