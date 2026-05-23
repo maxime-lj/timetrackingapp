@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- ╔══════════════════════════════════════════════════════════════════╗ -->
-<!-- ║  VERSION  :  2026-05-23 · 15h40                                  ║ -->
+<!-- ║  VERSION  :  2026-05-23 · 15h55                                  ║ -->
 <!-- ║  Modifie cette ligne à chaque mise à jour pour repérer la prod   ║ -->
 <!-- ╚══════════════════════════════════════════════════════════════════╝ -->
 <html lang="fr">
@@ -1828,10 +1828,19 @@
   [hidden] { display: none !important; }
 
   .login-screen {
-    min-height: 100vh;
+    /* Recouvre tout le viewport */
+    position: fixed;
+    inset: 0;
+    /* Scroll vertical autorisé SI la carte déborde (cas fenêtre très petite) */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* Centrage robuste via flex column + margin auto sur la card :
+       - Si la card rentre dans le viewport, elle est centrée verticalement
+       - Si elle déborde, elle s'aligne en haut avec scroll naturel possible */
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     padding: 24px;
     background: linear-gradient(180deg, var(--color-bg), var(--color-surface));
   }
@@ -1876,11 +1885,16 @@
   .login-card {
     width: 100%;
     max-width: 420px;
+    /* margin auto sur l'axe vertical = centrage si y'a la place, scroll naturel sinon */
+    margin-top: auto;
+    margin-bottom: auto;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 16px;
     padding: 40px 36px 32px;
     box-shadow: 0 24px 48px rgba(6, 73, 105, 0.10), 0 4px 8px rgba(0,0,0,0.04);
+    /* Empêche la card d'être compressée verticalement par flex */
+    flex-shrink: 0;
   }
   .login-eyebrow {
     font-size: 11px;
@@ -2149,23 +2163,14 @@
   /* Hauteur du viewport iOS : utiliser dvh quand dispo (évite que la barre Safari masque le contenu) */
   @supports (height: 100dvh) {
     .login-screen {
-      /* position fixed + inset 0 = recouvre tout le viewport, bloque tout scroll */
-      position: fixed;
-      inset: 0;
-      min-height: 100dvh;
-      height: 100dvh;
-      overflow: hidden;
+      /* Hérite du position: fixed + overflow: hidden de la base */
       padding: 16px;
-      /* Centré verticalement */
-      align-items: center;
-      /* Respect du notch iOS */
       padding-top: max(16px, env(safe-area-inset-top));
       padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
     .login-card {
       border-radius: 14px;
       padding: 28px 22px 22px;
-      /* Pas de max-height ni overflow → le card s'auto-dimensionne */
     }
     .login-title { font-size: 28px; }
     .login-sub { font-size: 13px; margin: 10px 0 18px; }
