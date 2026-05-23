@@ -1465,29 +1465,33 @@
     background: rgba(201, 12, 15, 0.06);
   }
 
+  /* Label de section dans le dropdown */
+  .actions-section-label {
+    padding: 8px 12px 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    color: var(--color-text-mute);
+    font-weight: 700;
+  }
+  .actions-section-label.danger {
+    color: var(--color-primary);
+  }
+
+  /* Email de l'utilisateur connecté */
+  .actions-user {
+    padding: 2px 12px 10px;
+    font-size: 12px;
+    color: var(--color-text-soft);
+    font-family: var(--font-mono);
+    word-break: break-all;
+    line-height: 1.3;
+  }
+
   .actions-divider {
     height: 1px;
     background: var(--color-border-light);
     margin: 4px 8px;
-  }
-
-  .actions-footer {
-    padding: 8px 12px 4px;
-    border-top: 1px solid var(--color-border-light);
-    margin-top: 4px;
-    font-size: 10px;
-    color: var(--color-text-mute);
-    font-family: var(--font-mono);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .storage-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--ferie);
-    flex-shrink: 0;
   }
   .btn {
     display: inline-flex;
@@ -1581,6 +1585,54 @@
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--color-border);
   }
+  /* Modale en mode danger : bordure rouge fine + h3 rouge */
+  .modal-danger { border-top: 4px solid var(--color-primary); }
+  .modal-danger h3 { color: var(--color-primary); }
+
+  /* Mot à taper, mis en valeur */
+  .confirm-word {
+    background: rgba(201, 12, 15, 0.08);
+    color: var(--color-primary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  /* Input confirmation modale danger */
+  #modalResetConfirm {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    outline: none;
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  #modalResetConfirm:focus { border-color: var(--color-primary); }
+
+  /* Bouton danger plein (utilisé dans la modale Tout vider) */
+  .btn-danger-solid {
+    background: var(--color-primary) !important;
+    color: white !important;
+    border-color: var(--color-primary) !important;
+  }
+  .btn-danger-solid:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-danger-solid:not(:disabled):hover {
+    background: var(--color-primary-dark) !important;
+  }
+
   .modal h3 {
     font-family: var(--font);
     font-size: 22px;
@@ -2001,11 +2053,22 @@
           </svg>
         </button>
         <div class="actions-dropdown" id="actionsMenu" hidden role="menu">
+          <!-- COMPTE -->
+          <div class="actions-section-label">Compte</div>
+          <div class="actions-user" id="actionsUser">—</div>
+          <button class="actions-item" id="btnLogout" type="button" role="menuitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Se déconnecter</span>
+          </button>
+
+          <div class="actions-divider"></div>
+
+          <!-- ACTIONS -->
+          <div class="actions-section-label">Actions</div>
           <button class="actions-item" id="btnPrint" type="button" role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             <span>Imprimer</span>
           </button>
-          <div class="actions-divider"></div>
           <button class="actions-item" id="btnExport" type="button" role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span>Exporter JSON</span>
@@ -2014,20 +2077,15 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <span>Importer JSON</span>
           </button>
+
           <div class="actions-divider"></div>
+
+          <!-- ZONE DE DANGER -->
+          <div class="actions-section-label danger">Zone de danger</div>
           <button class="actions-item danger" id="btnReset" type="button" role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
             <span>Tout vider</span>
           </button>
-          <div class="actions-divider"></div>
-          <button class="actions-item" id="btnLogout" type="button" role="menuitem">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            <span>Se déconnecter</span>
-          </button>
-          <div class="actions-footer">
-            <span class="storage-dot" aria-hidden="true"></span>
-            <span id="storageStatus">connexion en cours…</span>
-          </div>
         </div>
       </div>
     </div>
@@ -2183,6 +2241,21 @@
     <div class="modal-actions">
       <button class="btn" id="modalCancel">Annuler</button>
       <button class="btn" id="modalConfirm" style="background:var(--ink);color:var(--surface);border-color:var(--ink)">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL : Tout vider (confirmation forte) -->
+<div class="modal-overlay" id="modalReset">
+  <div class="modal modal-danger">
+    <h3>Tout vider</h3>
+    <p><strong>Cette action est irréversible.</strong> Tous les mois, années et heures saisies seront définitivement supprimés de ton compte.</p>
+    <p style="color: var(--color-text-mute); font-size: 13px;">Pense à <strong>Exporter JSON</strong> avant si tu veux garder une copie.</p>
+    <label>Pour confirmer, tape <code class="confirm-word">VIDER</code> ci-dessous :</label>
+    <input type="text" id="modalResetConfirm" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="VIDER">
+    <div class="modal-actions">
+      <button class="btn" id="modalResetCancel">Annuler</button>
+      <button class="btn btn-danger-solid" id="modalResetConfirmBtn" disabled>Tout vider</button>
     </div>
   </div>
 </div>
@@ -2920,9 +2993,8 @@ async function saveToStorage() {
 }
 
 function setStatus(msg, err) {
-  const el = document.getElementById("storageStatus");
-  el.textContent = msg;
-  el.style.color = err ? "var(--dimanche)" : "var(--mute)";
+  // Plus d'affichage dans l'UI ; les erreurs critiques deviennent des toasts.
+  if (err) toast(msg);
 }
 
 function toast(msg) {
@@ -4173,8 +4245,19 @@ async function importJSON(file) {
   }
 }
 
-async function resetAll() {
-  if (!confirm("Tout vider ?\n\nTous les mois, années et heures seront supprimés. Pense à Exporter avant si tu veux garder une copie.")) return;
+function resetAll() {
+  // Ouvre la modale de confirmation forte (saisie du mot "VIDER")
+  const modal = document.getElementById("modalReset");
+  const input = document.getElementById("modalResetConfirm");
+  const btnOk = document.getElementById("modalResetConfirmBtn");
+  input.value = "";
+  btnOk.disabled = true;
+  modal.classList.add("show");
+  // Focus après affichage
+  setTimeout(() => input.focus(), 50);
+}
+
+async function performReset() {
   state.data = {};
   state.order = [];
   state.years = {};
@@ -4378,15 +4461,43 @@ function syncPanelHeights() {
   document.getElementById("btnReset").addEventListener("click", withCloseMenu(resetAll));
   document.getElementById("btnPrint").addEventListener("click", withCloseMenu(() => window.print()));
   document.getElementById("btnLogout").addEventListener("click", withCloseMenu(async () => {
-    if (!confirm("Se déconnecter de ton compte ?")) return;
     await auth.signOut();
   }));
 
-  // Modal
+  // Modal "Ajouter un mois"
   document.getElementById("modalCancel").addEventListener("click", closeModal);
   document.getElementById("modalConfirm").addEventListener("click", confirmAddMonth);
   document.getElementById("modalOverlay").addEventListener("click", (e) => {
     if (e.target.id === "modalOverlay") closeModal();
+  });
+
+  // Modal "Tout vider" — confirmation par saisie du mot VIDER
+  const modalReset = document.getElementById("modalReset");
+  const modalResetInput = document.getElementById("modalResetConfirm");
+  const modalResetBtn = document.getElementById("modalResetConfirmBtn");
+  function closeModalReset() {
+    modalReset.classList.remove("show");
+    modalResetInput.value = "";
+    modalResetBtn.disabled = true;
+  }
+  modalResetInput.addEventListener("input", () => {
+    modalResetBtn.disabled = modalResetInput.value.trim().toUpperCase() !== "VIDER";
+  });
+  modalResetInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !modalResetBtn.disabled) {
+      e.preventDefault();
+      modalResetBtn.click();
+    }
+    if (e.key === "Escape") closeModalReset();
+  });
+  document.getElementById("modalResetCancel").addEventListener("click", closeModalReset);
+  modalResetBtn.addEventListener("click", async () => {
+    if (modalResetInput.value.trim().toUpperCase() !== "VIDER") return;
+    closeModalReset();
+    await performReset();
+  });
+  modalReset.addEventListener("click", (e) => {
+    if (e.target.id === "modalReset") closeModalReset();
   });
 
   // Année : +/- et input
@@ -4439,7 +4550,8 @@ function syncPanelHeights() {
       document.getElementById("appWrap").hidden = false;
       await loadFromStorage();
       renderAll();
-      setStatus(`✓ ${user.email}`);
+      // Affiche l'email dans la section "Compte" du menu kebab
+      document.getElementById("actionsUser").textContent = user.email;
     } else {
       // Déconnecté → afficher le login, réinitialiser le state
       document.getElementById("loginScreen").hidden = false;
