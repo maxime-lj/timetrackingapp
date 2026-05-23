@@ -901,7 +901,7 @@
   tr.invalid-day .row-action.remove { opacity: 0.7; }
   tr.invalid-day:hover .row-action.remove { opacity: 1; }
 
-  /* ============ SYNTHÈSE / DONUTS ============ */
+  /* ============ SYNTHÈSE — total + breakdown ============ */
   .month-summary { padding: 18px 24px 22px; }
   /* Headline du mois : même style que .insight-headline (Repères) */
   .month-big {
@@ -938,75 +938,75 @@
     margin-top: 6px;
   }
 
-  /* Sections du breakdown (QUAND / COMMENT) — style cohérent avec Repères */
-  .breakdown { display: grid; gap: 4px; }
-  .bk-section-label {
+  /* ============ SYNTHÈSE — sections "Quand" et "Comment" (barre empilée + légende) ============ */
+  .syn-section { margin-top: 16px; }
+  .syn-section:first-of-type { margin-top: 0; }
+  .syn-section-label {
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--color-text-mute);
     font-weight: 700;
-    margin-bottom: 4px;
-    margin-top: 14px;
-    padding-bottom: 6px;
-    border-bottom: 1px dotted var(--color-border);
+    margin-bottom: 8px;
   }
-  .bk-section-label:first-child { margin-top: 0; }
-  .breakdown-row {
+  .syn-bar {
+    display: flex;
+    height: 14px;
+    border-radius: 7px;
+    overflow: hidden;
+    background: var(--color-bg);
+    margin-bottom: 10px;
+  }
+  .syn-bar .seg {
+    height: 100%;
+    transition: width 220ms ease;
+    min-width: 0;
+  }
+  /* Premier et dernier segments arrondis pour rendu plus net si un seul segment */
+  .syn-bar .seg:first-child { border-radius: 7px 0 0 7px; }
+  .syn-bar .seg:last-child { border-radius: 0 7px 7px 0; }
+  .syn-bar .seg:only-child { border-radius: 7px; }
+
+  .syn-legend {
     display: grid;
-    grid-template-columns: 12px 1fr auto auto;
-    gap: 10px;
-    align-items: center;
-    padding: 6px 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
   }
-  .breakdown-row .dot {
+  .syn-leg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .syn-leg .dot {
     width: 9px;
     height: 9px;
     border-radius: 50%;
+    flex-shrink: 0;
   }
-  .breakdown-row .name {
-    font-size: 13px;
+  .syn-leg .name {
+    flex: 1;
+    font-size: 12px;
     color: var(--color-text);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .breakdown-row .pct {
-    font-size: 11px;
-    color: var(--color-text-mute);
-    font-family: var(--font-mono);
-    text-align: right;
-  }
-  .breakdown-row .val {
+  .syn-leg .val {
     font-family: var(--font);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 900;
     color: var(--color-text);
     font-feature-settings: "tnum";
-    text-align: right;
-    min-width: 52px;
+  }
+  .syn-leg .val .u {
+    font-weight: 400;
+    color: var(--color-text-mute);
+    font-size: 11px;
+    margin-left: 2px;
   }
 
-  /* Donuts plus discrets, alignés visuellement avec le reste */
-  .donut-wrap {
-    padding: 14px 24px 18px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    border-top: 1px solid var(--color-border-light);
-  }
-  .donut-block { text-align: center; }
-  .donut-block-title {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-text-mute);
-    font-weight: 700;
-    margin: 4px 0 6px;
-  }
-  .donut-block canvas {
-    max-height: 120px;
-    max-width: 150px;
-    margin: 0 auto;
-    display: block;
-  }
 
   /* ============ COMPARE ============ */
   .compare { margin-top: 32px; }
@@ -1987,14 +1987,13 @@
     /* Total du mois (synthèse) — garde le style headline, juste padding allégé */
     .month-big .value { font-size: 26px; }
     .month-big .value .unit { font-size: 12px; }
-    .breakdown-row { padding: 5px 0; }
 
-    /* ====== DONUTS ====== */
-    .donut-wrap {
-      padding: 12px 16px 14px;
-      gap: 8px;
-    }
-    .donut-block canvas { max-height: 100px; max-width: 130px; }
+    /* Synthèse — sections Quand/Comment */
+    .syn-section { margin-top: 12px; }
+    .syn-bar { height: 12px; margin-bottom: 8px; }
+    .syn-legend { gap: 6px 12px; }
+    .syn-leg .name { font-size: 11px; }
+    .syn-leg .val { font-size: 12px; }
 
     /* ====== À VÉRIFIER — compacter quand vide ====== */
     .verify-panel .panel-header { padding: 12px 14px; }
@@ -2196,16 +2195,17 @@
             <div class="value" id="bigTotal">0<span class="unit">h</span></div>
             <div class="note" id="bigNote">—</div>
           </div>
-          <div class="breakdown" id="breakdown"></div>
-        </div>
-        <div class="donut-wrap">
-          <div class="donut-block">
-            <div class="donut-block-title">Quand — jour ou nuit</div>
-            <canvas id="donutWhen" height="140"></canvas>
+
+          <div class="syn-section">
+            <div class="syn-section-label">Quand</div>
+            <div class="syn-bar" id="synWhenBar"></div>
+            <div class="syn-legend" id="synWhenLegend"></div>
           </div>
-          <div class="donut-block">
-            <div class="donut-block-title">Comment — statut</div>
-            <canvas id="donutWhat" height="140"></canvas>
+
+          <div class="syn-section">
+            <div class="syn-section-label">Comment</div>
+            <div class="syn-bar" id="synWhatBar"></div>
+            <div class="syn-legend" id="synWhatLegend"></div>
           </div>
         </div>
       </div>
@@ -2400,8 +2400,6 @@ let state = {
   order: [...MONTHS_ORIGINAL],
   years: { ...INITIAL_YEARS },
 };
-let donutWhenChart = null;
-let donutWhatChart = null;
 let stackedChart = null;
 
 function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
@@ -3222,7 +3220,7 @@ function renderMonths() {
         <button class="remove-btn" data-remove="${m}" title="Supprimer ce mois" aria-label="Supprimer ${m}">×</button>
         <div class="month-name">${realMonthName(m)}</div>
         ${y ? `<div class="month-year"><span class="month-year-edit" data-edit-year="${m}" title="Modifier l'année">${y} ✎</span></div>` : `<div class="month-year"><span class="month-year-edit" data-edit-year="${m}" title="Définir l'année" style="color:var(--mute-light)">+ année</span></div>`}
-        <div class="month-meta">${t.workedDays} jours travaillés</div>
+        <div class="month-meta">${t.workedDays} gardes</div>
         <div class="month-hours">
           <span class="month-hours-num">${fmtNum(t.heures)}</span>
           <span class="month-hours-unit">heures</span>
@@ -3505,118 +3503,48 @@ function renderSynthese() {
   if (!m) {
     document.getElementById("bigTotal").innerHTML = "—";
     document.getElementById("bigNote").textContent = "";
-    document.getElementById("breakdown").innerHTML = "";
+    document.getElementById("synWhenBar").innerHTML = "";
+    document.getElementById("synWhenLegend").innerHTML = "";
+    document.getElementById("synWhatBar").innerHTML = "";
+    document.getElementById("synWhatLegend").innerHTML = "";
     return;
   }
   const t = monthTotals(m);
   document.getElementById("bigTotal").innerHTML = `${fmtNum(t.heures)}<span class="unit">h</span>`;
-  document.getElementById("bigNote").textContent = `${t.workedDays} jours travaillés · moyenne ${fmtNum((t.heures/Math.max(t.workedDays,1)).toFixed(1))}h/garde`;
+  document.getElementById("bigNote").textContent = `${t.workedDays} gardes · moyenne ${fmtNum((t.heures/Math.max(t.workedDays,1)).toFixed(1))}h/garde`;
 
   // Décomposition double : "Quand" et "Comment"
   const normal = Math.max(0, t.heures - t.dimanche - t.ferie - t.admin);
   const what = { normal, dimanche: t.dimanche, ferie: t.ferie, admin: t.admin };
   const when = { nuit: t.nuit, jour: t.jour };
 
-  const bk = document.getElementById("breakdown");
-  bk.innerHTML = `
-    <div class="bk-section-label">Quand</div>
-    ${CATS_WHEN.map(c => {
-      const v = when[c.key];
-      const pct = t.heures > 0 ? ((v/t.heures)*100).toFixed(0) : 0;
+  // Render d'une section (barre empilée + légende)
+  function renderSection(cats, vals, total, barEl, legendEl) {
+    barEl.innerHTML = cats.map(c => {
+      const v = vals[c.key] || 0;
+      const pct = total > 0 ? (v / total) * 100 : 0;
+      return v > 0
+        ? `<div class="seg" style="width:${pct}%; background:${c.color}" title="${c.label} : ${fmtNum(v)}h (${pct.toFixed(0)}%)"></div>`
+        : "";
+    }).join("");
+    legendEl.innerHTML = cats.map(c => {
+      const v = vals[c.key] || 0;
       return `
-        <div class="breakdown-row">
+        <div class="syn-leg">
           <span class="dot" style="background:${c.color}"></span>
           <span class="name">${c.label}</span>
-          <span class="val">${fmtNum(v)}h</span>
-          <span class="pct">${pct}%</span>
+          <span class="val">${fmtNum(v)}<span class="u">h</span></span>
         </div>
       `;
-    }).join("")}
-    <div class="bk-section-label" style="margin-top:14px">Comment</div>
-    ${CATS_WHAT.map(c => {
-      const v = what[c.key];
-      const pct = t.heures > 0 ? ((v/t.heures)*100).toFixed(0) : 0;
-      return `
-        <div class="breakdown-row">
-          <span class="dot" style="background:${c.color}"></span>
-          <span class="name">${c.label}</span>
-          <span class="val">${fmtNum(v)}h</span>
-          <span class="pct">${pct}%</span>
-        </div>
-      `;
-    }).join("")}
-  `;
-
-  renderDonutWhen(when, t.heures);
-  renderDonutWhat(what, t.heures);
-}
-
-function renderDonutWhen(when, total) {
-  const ctx = document.getElementById("donutWhen");
-  if (!ctx) return;
-  const data = {
-    labels: CATS_WHEN.map(c => c.label),
-    datasets: [{
-      data: CATS_WHEN.map(c => when[c.key]),
-      backgroundColor: CATS_WHEN.map(c => c.color),
-      borderColor: "#FFFFFF",
-      borderWidth: 2,
-      hoverOffset: 6,
-    }]
-  };
-  if (donutWhenChart) {
-    donutWhenChart.data = data;
-    donutWhenChart.update("none");
-    return;
+    }).join("");
   }
-  donutWhenChart = new Chart(ctx, {
-    type: "doughnut",
-    data,
-    options: { ...donutOptions() }
-  });
-}
 
-function renderDonutWhat(what, total) {
-  const ctx = document.getElementById("donutWhat");
-  if (!ctx) return;
-  const data = {
-    labels: CATS_WHAT.map(c => c.label),
-    datasets: [{
-      data: CATS_WHAT.map(c => what[c.key]),
-      backgroundColor: CATS_WHAT.map(c => c.color),
-      borderColor: "#FFFFFF",
-      borderWidth: 2,
-      hoverOffset: 6,
-    }]
-  };
-  if (donutWhatChart) {
-    donutWhatChart.data = data;
-    donutWhatChart.update("none");
-    return;
-  }
-  donutWhatChart = new Chart(ctx, {
-    type: "doughnut",
-    data,
-    options: { ...donutOptions() }
-  });
-}
-
-function donutOptions() {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: "62%",
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: { label: (ctx) => `${ctx.label} : ${fmtNum(ctx.parsed)}h` },
-        backgroundColor: "#1A1A1A",
-        titleFont: { family: "Lato", size: 12 },
-        bodyFont: { family: "Lato", size: 12 },
-        padding: 10,
-      }
-    }
-  };
+  renderSection(CATS_WHEN, when, t.heures,
+    document.getElementById("synWhenBar"),
+    document.getElementById("synWhenLegend"));
+  renderSection(CATS_WHAT, what, t.heures,
+    document.getElementById("synWhatBar"),
+    document.getElementById("synWhatLegend"));
 }
 
 function renderStacked() {
@@ -4446,8 +4374,6 @@ function syncPanelHeights() {
     if (h > 0) comparePanels[0].style.height = h + 'px';
   }
   if (stackedChart) stackedChart.resize();
-  if (donutWhenChart) donutWhenChart.resize();
-  if (donutWhatChart) donutWhatChart.resize();
 }
 
 (async function init() {
