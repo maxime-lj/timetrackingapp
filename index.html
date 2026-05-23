@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- ╔══════════════════════════════════════════════════════════════════╗ -->
-<!-- ║  VERSION  :  2026-05-23 · 15h30                                  ║ -->
+<!-- ║  VERSION  :  2026-05-23 · 15h40                                  ║ -->
 <!-- ║  Modifie cette ligne à chaque mise à jour pour repérer la prod   ║ -->
 <!-- ╚══════════════════════════════════════════════════════════════════╝ -->
 <html lang="fr">
@@ -120,7 +120,8 @@
   .container {
     max-width: var(--container-max);
     margin: 0 auto;
-    padding: 56px var(--container-pad) 80px;
+    /* Padding équilibré : haut/côtés = même valeur (--container-pad), bas un peu plus généreux */
+    padding: var(--container-pad) var(--container-pad) 64px;
   }
 
   /* ============ HEADER ============ */
@@ -1804,7 +1805,7 @@
   /* ============ MOBILE ============ */
   @media (max-width: 700px) {
     :root { --container-pad: 20px; }
-    .container { padding: 32px var(--container-pad) 48px; }
+    .container { padding: var(--container-pad) var(--container-pad) 48px; }
     .header { padding: 24px 20px; border-radius: var(--radius-md); }
     .global-stats { grid-template-columns: 1fr 1fr; }
     .stat { border-right: 1px solid var(--color-border); padding-left: 24px; }
