@@ -1484,8 +1484,11 @@
     font-size: 12px;
     color: var(--color-text-soft);
     font-family: var(--font-mono);
-    word-break: break-all;
     line-height: 1.3;
+    /* Troncage en une ligne si l'email est long, tooltip au survol */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .actions-divider {
@@ -1619,7 +1622,7 @@
   }
   #modalResetConfirm:focus { border-color: var(--color-primary); }
 
-  /* Bouton danger plein (utilisé dans la modale Tout vider) */
+  /* Bouton danger plein (utilisé dans la modale Réinitialiser) */
   .btn-danger-solid {
     background: var(--color-primary) !important;
     color: white !important;
@@ -2084,7 +2087,7 @@
           <div class="actions-section-label danger">Zone de danger</div>
           <button class="actions-item danger" id="btnReset" type="button" role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-            <span>Tout vider</span>
+            <span>Réinitialiser le compte</span>
           </button>
         </div>
       </div>
@@ -2245,17 +2248,17 @@
   </div>
 </div>
 
-<!-- MODAL : Tout vider (confirmation forte) -->
+<!-- MODAL : Réinitialiser le compte (confirmation forte) -->
 <div class="modal-overlay" id="modalReset">
   <div class="modal modal-danger">
-    <h3>Tout vider</h3>
+    <h3>Réinitialiser le compte</h3>
     <p><strong>Cette action est irréversible.</strong> Tous les mois, années et heures saisies seront définitivement supprimés de ton compte.</p>
     <p style="color: var(--color-text-mute); font-size: 13px;">Pense à <strong>Exporter JSON</strong> avant si tu veux garder une copie.</p>
-    <label>Pour confirmer, tape <code class="confirm-word">VIDER</code> ci-dessous :</label>
-    <input type="text" id="modalResetConfirm" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="VIDER">
+    <label>Pour confirmer, tape <code class="confirm-word">RESET</code> ci-dessous :</label>
+    <input type="text" id="modalResetConfirm" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="RESET">
     <div class="modal-actions">
       <button class="btn" id="modalResetCancel">Annuler</button>
-      <button class="btn btn-danger-solid" id="modalResetConfirmBtn" disabled>Tout vider</button>
+      <button class="btn btn-danger-solid" id="modalResetConfirmBtn" disabled>Réinitialiser</button>
     </div>
   </div>
 </div>
@@ -4246,7 +4249,7 @@ async function importJSON(file) {
 }
 
 function resetAll() {
-  // Ouvre la modale de confirmation forte (saisie du mot "VIDER")
+  // Ouvre la modale de confirmation forte (saisie du mot "RESET")
   const modal = document.getElementById("modalReset");
   const input = document.getElementById("modalResetConfirm");
   const btnOk = document.getElementById("modalResetConfirmBtn");
@@ -4274,7 +4277,7 @@ async function performReset() {
   // Sauvegarder l'état vide
   await saveToStorage();
   renderAll();
-  toast("Tout a été vidé · prêt pour un import");
+  toast("Compte réinitialisé · prêt pour un import");
 }
 
 // ============ INIT ============
@@ -4471,7 +4474,7 @@ function syncPanelHeights() {
     if (e.target.id === "modalOverlay") closeModal();
   });
 
-  // Modal "Tout vider" — confirmation par saisie du mot VIDER
+  // Modal "Réinitialiser le compte" — confirmation par saisie du mot RESET
   const modalReset = document.getElementById("modalReset");
   const modalResetInput = document.getElementById("modalResetConfirm");
   const modalResetBtn = document.getElementById("modalResetConfirmBtn");
@@ -4481,7 +4484,7 @@ function syncPanelHeights() {
     modalResetBtn.disabled = true;
   }
   modalResetInput.addEventListener("input", () => {
-    modalResetBtn.disabled = modalResetInput.value.trim().toUpperCase() !== "VIDER";
+    modalResetBtn.disabled = modalResetInput.value.trim().toUpperCase() !== "RESET";
   });
   modalResetInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !modalResetBtn.disabled) {
@@ -4492,7 +4495,7 @@ function syncPanelHeights() {
   });
   document.getElementById("modalResetCancel").addEventListener("click", closeModalReset);
   modalResetBtn.addEventListener("click", async () => {
-    if (modalResetInput.value.trim().toUpperCase() !== "VIDER") return;
+    if (modalResetInput.value.trim().toUpperCase() !== "RESET") return;
     closeModalReset();
     await performReset();
   });
@@ -4551,7 +4554,9 @@ function syncPanelHeights() {
       await loadFromStorage();
       renderAll();
       // Affiche l'email dans la section "Compte" du menu kebab
-      document.getElementById("actionsUser").textContent = user.email;
+      const userEl = document.getElementById("actionsUser");
+      userEl.textContent = user.email;
+      userEl.setAttribute("title", user.email);
     } else {
       // Déconnecté → afficher le login, réinitialiser le state
       document.getElementById("loginScreen").hidden = false;
