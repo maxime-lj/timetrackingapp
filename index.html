@@ -1,8 +1,19 @@
 <!DOCTYPE html>
+<!-- ╔══════════════════════════════════════════════════════════════════╗ -->
+<!-- ║  VERSION  :  2026-05-23 · 13h45                                  ║ -->
+<!-- ║  Modifie cette ligne à chaque mise à jour pour repérer la prod   ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════════╝ -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<!-- Anti-cache : force le navigateur à toujours vérifier s'il y a une nouvelle version.
+     Utile pendant la phase de dev itératif. À retirer quand l'app sera stable. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <title>Décompte des heures</title>
 
 <!-- Favicon SVG inline (data URI) — cadran d'horloge, aucun fichier externe -->
@@ -4748,4 +4759,3 @@ function translateAuthError(e) {
 
 </body>
 </html>
- 
