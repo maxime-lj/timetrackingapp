@@ -1317,12 +1317,16 @@
     font-family: var(--font-mono);
     margin-left: auto;
   }
-  .yearly-content { border-top: 1px solid var(--color-border-light); }
+  .yearly-content {
+    border-top: 1px solid var(--color-border-light);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
   .yearly-table { width: 100%; border-collapse: collapse; font-size: 13px; font-feature-settings: "tnum", "lnum"; }
   .yearly-table thead th {
     text-align: right;
-    padding: 14px 16px;
+    padding: 14px 14px;
     font-weight: 700;
     font-size: 10px;
     text-transform: uppercase;
@@ -1330,15 +1334,22 @@
     color: var(--color-text-mute);
     border-bottom: 1px solid var(--color-border);
     background: var(--color-bg);
+    white-space: nowrap;
   }
   .yearly-table thead th:first-child { text-align: left; padding-left: 24px; }
   .yearly-table thead th:last-child { padding-right: 24px; }
   .yearly-table tbody td {
     text-align: right;
-    padding: 14px 16px;
+    padding: 12px 14px;
     border-bottom: 1px solid var(--color-border-light);
     color: var(--color-text);
+    white-space: nowrap;
   }
+  .yearly-table tbody tr {
+    cursor: pointer;
+    transition: background 120ms ease;
+  }
+  .yearly-table tbody tr:hover td { background: var(--color-surface-alt); }
   .yearly-table tbody tr:last-child td { border-bottom: none; }
   .yearly-table tbody td:first-child {
     text-align: left;
@@ -1350,6 +1361,7 @@
   }
   .yearly-table tbody td:last-child { padding-right: 24px; }
   .yearly-table tbody tr.active-year td { background: rgba(201, 12, 15, 0.04); }
+  .yearly-table tbody tr.active-year:hover td { background: rgba(201, 12, 15, 0.08); }
   .yearly-table tbody tr.active-year td:first-child {
     position: relative;
     color: var(--color-primary);
@@ -1361,32 +1373,30 @@
     color: var(--color-primary);
     font-size: 10px;
   }
-  .yearly-go {
-    background: transparent;
-    border: 1px solid var(--color-primary);
-    color: var(--color-primary);
-    padding: 4px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 10px;
-    font-family: inherit;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 150ms ease;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .yearly-go:hover {
-    background: var(--color-primary);
-    color: white;
+  /* Le bouton "Voir" n'est plus utilisé (toute la ligne devient cliquable) */
+  /* Le bouton "Voir" n'est plus utilisé (toute la ligne devient cliquable) */
+  .yearly-go { display: none; }
+
+  /* ============ DELTAS (Bilan annuel) ============ */
+  .cell-val {
+    display: inline-block;
+    font-feature-settings: "tnum", "lnum";
   }
   .delta {
+    display: inline-block;
     font-size: 10px;
-    margin-left: 5px;
+    margin-left: 6px;
+    padding: 1px 5px;
+    border-radius: 4px;
     font-family: var(--font-mono);
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+    vertical-align: middle;
   }
-  .delta.up { color: var(--ferie); }
-  .delta.down { color: var(--dimanche); }
-  .delta.flat { color: var(--color-text-soft); }
+  .delta.up { color: var(--ferie); background: rgba(46, 125, 91, 0.10); }
+  .delta.down { color: var(--dimanche); background: rgba(201, 12, 15, 0.10); }
+  .delta.flat { color: var(--color-text-soft); background: var(--color-bg); }
 
   /* ============ ACTIONS ============ */
   .actions {
@@ -2045,9 +2055,15 @@
 
     /* ====== REPÈRES — laisser tel quel (s'inspire pour Synthèse) ====== */
 
-    /* ====== BILAN ANNUEL — pas de scroll horizontal forcé ====== */
-    .yearly-table { font-size: 11px; }
-    .yearly-table thead th, .yearly-table tbody td { padding: 8px 4px; }
+    /* ====== BILAN ANNUEL — scroll horizontal sur mobile ====== */
+    .yearly-table { font-size: 12px; min-width: 600px; }
+    .yearly-table thead th { padding: 10px 10px; }
+    .yearly-table tbody td { padding: 10px 10px; }
+    .yearly-table thead th:first-child { padding-left: 14px; }
+    .yearly-table thead th:last-child { padding-right: 14px; }
+    .yearly-table tbody td:first-child { padding-left: 14px; font-size: 13px; }
+    .yearly-table tbody td:last-child { padding-right: 14px; }
+    .delta { font-size: 9px; padding: 1px 4px; margin-left: 4px; }
 
     /* Menu kebab dropdown : adapté au viewport */
     .actions-dropdown {
@@ -2299,7 +2315,6 @@
             <th>Moy. /mois</th>
             <th>Weekends</th>
             <th>Fériés</th>
-            <th></th>
           </tr>
         </thead>
         <tbody id="yearlyTableBody"></tbody>
@@ -4342,7 +4357,7 @@ function renderYearlySummary() {
   const sub = document.getElementById("yearlyToggleSub");
 
   if (years.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--mute);padding:24px">Aucune donnée annuelle.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--mute);padding:24px">Aucune donnée annuelle.</td></tr>`;
     sub.textContent = "—";
     return;
   }
@@ -4355,8 +4370,6 @@ function renderYearlySummary() {
     const t = totalsForMonths(monthsOfY);
     const moyMois = monthsOfY.length > 0 ? t.heures / monthsOfY.length : 0;
     const act = analyzeYearActivity(y);
-    const pctWk = act.weekendsTotal > 0 ? (act.weekendsWorked / act.weekendsTotal) * 100 : 0;
-    const pctHo = act.holidaysTotal > 0 ? (act.holidaysWorked / act.holidaysTotal) * 100 : 0;
 
     const deltaMois = prev ? deltaCell(monthsOfY.length, prev.mois, "", 0) : "";
     const deltaGardes = prev ? deltaCell(t.workedDays, prev.gardes, "", 0) : "";
@@ -4376,21 +4389,21 @@ function renderYearlySummary() {
     const isActive = y === state.activeYear ? "active-year" : "";
 
     return `
-      <tr class="${isActive}">
+      <tr class="${isActive}" data-go-year="${y}">
         <td>${y}</td>
-        <td>${monthsOfY.length}${deltaMois}</td>
-        <td>${t.workedDays}${deltaGardes}</td>
-        <td>${fmtNum(t.heures)} h${deltaHeures}</td>
-        <td>${fmtNum(moyMois.toFixed(1))} h${deltaMoy}</td>
-        <td title="${act.weekendsWorked} weekends travaillés sur ${act.weekendsTotal}">${act.weekendsWorked} / ${act.weekendsTotal}${deltaWk}</td>
-        <td title="${act.holidaysWorked} jours fériés travaillés sur ${act.holidaysTotal}">${act.holidaysWorked} / ${act.holidaysTotal}${deltaHo}</td>
-        <td>${y === state.activeYear ? "" : `<button class="yearly-go" data-go-year="${y}">Voir</button>`}</td>
+        <td><span class="cell-val">${monthsOfY.length}</span>${deltaMois}</td>
+        <td><span class="cell-val">${t.workedDays}</span>${deltaGardes}</td>
+        <td><span class="cell-val">${fmtNum(t.heures)} h</span>${deltaHeures}</td>
+        <td><span class="cell-val">${fmtNum(moyMois.toFixed(1))} h</span>${deltaMoy}</td>
+        <td title="${act.weekendsWorked} weekends travaillés sur ${act.weekendsTotal}"><span class="cell-val">${act.weekendsWorked} / ${act.weekendsTotal}</span>${deltaWk}</td>
+        <td title="${act.holidaysWorked} jours fériés travaillés sur ${act.holidaysTotal}"><span class="cell-val">${act.holidaysWorked} / ${act.holidaysTotal}</span>${deltaHo}</td>
       </tr>
     `;
   }).join("");
 
-  tbody.querySelectorAll(".yearly-go").forEach(btn => {
-    btn.addEventListener("click", () => selectYear(parseInt(btn.dataset.goYear, 10)));
+  // Toute la ligne devient cliquable pour basculer sur cette année
+  tbody.querySelectorAll("tr[data-go-year]").forEach(tr => {
+    tr.addEventListener("click", () => selectYear(parseInt(tr.dataset.goYear, 10)));
   });
 }
 
